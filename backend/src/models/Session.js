@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
-// Simple session storage - NO JWT!
 const sessionSchema = new mongoose.Schema({
-  userId: {
+  doctorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Doctor',
     required: true
   },
   sessionToken: {
@@ -15,7 +14,7 @@ const sessionSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 2592000  // Auto-delete after 30 days
+    expires: 2592000
   }
 });
 

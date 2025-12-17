@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { addMedication } from '../services/api';
 
-export default function AddMedicationScreen({ navigation }) {
+export default function AddMedicationScreen({ route, navigation }) {
+  const { patientId } = route.params;
   const [medication, setMedication] = useState({
     name: '',
     dosage: '',
@@ -29,7 +30,7 @@ export default function AddMedicationScreen({ navigation }) {
 
     setSaving(true);
     try {
-      const response = await addMedication(medication);
+      const response = await addMedication(patientId, medication);
       if (response.data.success) {
         Alert.alert('Success', 'Medication added successfully', [
           { text: 'OK', onPress: () => navigation.goBack() }

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema({
-  userId: {
+  patientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Patient',
     required: true
   },
   title: {
@@ -18,6 +18,10 @@ const documentSchema = new mongoose.Schema({
   filePath: {
     type: String,
     required: true
+  },
+  uploadedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor'
   },
   uploadedAt: {
     type: Date,

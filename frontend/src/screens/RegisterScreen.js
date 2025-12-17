@@ -12,14 +12,14 @@ import {
 import { register } from '../services/api';
 
 export default function RegisterScreen({ navigation }) {
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
@@ -36,13 +36,12 @@ export default function RegisterScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await register(email, password, fullName);
+      const response = await register(email, password, name);
       
-     if (response.data.success) {
-  Alert.alert('Success', 'Account created successfully!');
-  // Automatically navigate to Login screen
-  navigation.replace('Login');
-}
+      if (response.data.success) {
+        Alert.alert('Success', 'Doctor registered successfully!');
+        navigation.replace('Login');
+      }
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed. Please try again.';
       Alert.alert('Registration Failed', message);
@@ -53,13 +52,13 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Create Account</Text>
+      <Text style={styles.title}>Register New Doctor</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Full Name"
-        value={fullName}
-        onChangeText={setFullName}
+        value={name}
+        onChangeText={setName}
       />
 
       <TextInput
@@ -104,7 +103,7 @@ export default function RegisterScreen({ navigation }) {
         onPress={() => navigation.navigate('Login')}
       >
         <Text style={styles.linkText}>
-          Already have an account? Login
+          Already registered? Login
         </Text>
       </TouchableOpacity>
     </ScrollView>

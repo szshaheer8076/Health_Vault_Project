@@ -1,19 +1,17 @@
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-const User = require('../models/User');
-const Profile = require('../models/Profile');
+const Doctor = require('../models/Doctor');
 const Session = require('../models/Session');
 
-// Register new user
+// Register new doctor
 exports.register = async (req, res) => {
   try {
-    const { email, password, fullName } = req.body;
+    const { email, password, name } = req.body;
 
-    // Validation
-    if (!email || !password || !fullName) {
+    if (!email || !password || !name) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email, password, and full name'
+        message: 'Please provide email, password, and name'
       });
     }
 
@@ -24,36 +22,27 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingDoctor = await Doctor.findOne({ email });
+    if (existingDoctor) {
       return res.status(400).json({
         success: false,
         message: 'Email already registered'
       });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create user
-    const user = new User({
+    const doctor = new Doctor({
       email,
-      passwordHash
+      passwordHash,
+      name
     });
-    await user.save();
-
-    // Create profile
-    const profile = new Profile({
-      userId: user._id,
-      fullName
-    });
-    await profile.save();
+    await doctor.save();
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully'
+      message: 'Doctor registered successfully'
     });
 
   } catch (error) {
@@ -65,12 +54,11 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login user
+// Login doctor
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validation
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -78,17 +66,15 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) {
+    const doctor = await Doctor.findOne({ email });
+    if (!doctor) {
       return res.status(401).json({
         success: false,
         message: 'Incorrect email or password'
       });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    const isMatch = await bcrypt.compare(password, doctor.passwordHash);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -99,7 +85,7 @@ exports.login = async (req, res) => {
     // Create session with random token (NO JWT!)
     const sessionToken = uuidv4();
     const session = new Session({
-      userId: user._id,
+      doctorId: doctor._id,
       sessionToken
     });
     await session.save();
@@ -108,7 +94,8 @@ exports.login = async (req, res) => {
       success: true,
       message: 'Login successful',
       sessionToken,
-      userId: user._id
+      doctorId: doctor._id,
+      doctorName: doctor.name
     });
 
   } catch (error) {
@@ -120,12 +107,10 @@ exports.login = async (req, res) => {
   }
 };
 
-// Logout user
+// Logout doctor
 exports.logout = async (req, res) => {
   try {
     const token = req.headers['x-auth-token'];
-    
-    // Delete session from database
     await Session.deleteOne({ sessionToken: token });
 
     res.json({

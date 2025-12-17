@@ -1,9 +1,10 @@
 const Medication = require('../models/Medication');
 
-// Get all medications for user
+// Get medications for a patient
 exports.getMedications = async (req, res) => {
   try {
-    const medications = await Medication.find({ userId: req.userId }).sort({ createdAt: -1 });
+    const { patientId } = req.params;
+    const medications = await Medication.find({ patientId }).sort({ createdAt: -1 });
 
     res.json({
       success: true,
@@ -19,12 +20,12 @@ exports.getMedications = async (req, res) => {
   }
 };
 
-// Add new medication
+// Add medication
 exports.addMedication = async (req, res) => {
   try {
+    const { patientId } = req.params;
     const { name, dosage, frequency, startDate, endDate } = req.body;
 
-    // Validation
     if (!name || !dosage || !frequency || !startDate) {
       return res.status(400).json({
         success: false,
@@ -33,12 +34,13 @@ exports.addMedication = async (req, res) => {
     }
 
     const medication = new Medication({
-      userId: req.userId,
+      patientId,
       name,
       dosage,
       frequency,
       startDate,
-      endDate: endDate || null
+      endDate: endDate || null,
+      prescribedBy: req.doctorId
     });
 
     await medication.save();
@@ -58,51 +60,12 @@ exports.addMedication = async (req, res) => {
   }
 };
 
-// Update medication
-exports.updateMedication = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, dosage, frequency, startDate, endDate } = req.body;
-
-    const medication = await Medication.findOne({ _id: id, userId: req.userId });
-
-    if (!medication) {
-      return res.status(404).json({
-        success: false,
-        message: 'Medication not found'
-      });
-    }
-
-    // Update fields
-    if (name) medication.name = name;
-    if (dosage) medication.dosage = dosage;
-    if (frequency) medication.frequency = frequency;
-    if (startDate) medication.startDate = startDate;
-    if (endDate !== undefined) medication.endDate = endDate;
-
-    await medication.save();
-
-    res.json({
-      success: true,
-      message: 'Medication updated successfully',
-      medication
-    });
-
-  } catch (error) {
-    console.error('Update medication error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while updating medication'
-    });
-  }
-};
-
 // Delete medication
 exports.deleteMedication = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const medication = await Medication.findOneAndDelete({ _id: id, userId: req.userId });
+    const medication = await Medication.findByIdAndDelete(id);
 
     if (!medication) {
       return res.status(404).json({

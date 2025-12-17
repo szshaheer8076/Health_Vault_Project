@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "b88edfc9-7814-42b2-83f2-5774363ebb9b"
+      }
+    },
+    "android": {
+      "package": "com.shaheer8678.healthvault"
+    }
+  }
+}

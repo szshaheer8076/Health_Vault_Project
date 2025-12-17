@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const medicationSchema = new mongoose.Schema({
-  userId: {
+  patientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Patient',
     required: true
   },
   name: {
@@ -24,6 +24,10 @@ const medicationSchema = new mongoose.Schema({
   },
   endDate: {
     type: Date
+  },
+  prescribedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor'
   },
   createdAt: {
     type: Date,

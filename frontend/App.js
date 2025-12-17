@@ -7,10 +7,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import MedicationsScreen from './src/screens/MedicationsScreen';
+import PatientsListScreen from './src/screens/PatientsListScreen';
+import AddPatientScreen from './src/screens/AddPatientScreen';
+import PatientDetailsScreen from './src/screens/PatientDetailsScreen';
 import AddMedicationScreen from './src/screens/AddMedicationScreen';
-import DocumentsScreen from './src/screens/DocumentsScreen';
+import AddDocumentScreen from './src/screens/AddDocumentScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +35,6 @@ export default function App() {
     }
   };
 
-  // Show loading screen while checking login status
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -53,7 +53,6 @@ export default function App() {
         }}
       >
         {!isLoggedIn ? (
-          // Auth Stack - User not logged in
           <>
             <Stack.Screen 
               name="Login" 
@@ -64,27 +63,31 @@ export default function App() {
             <Stack.Screen 
               name="Register" 
               component={RegisterScreen}
-              options={{ title: 'Create Account' }}
+              options={{ title: 'Register Doctor' }}
             />
           </>
         ) : (
-          // Main App Stack - User is logged in
           <>
             <Stack.Screen 
               name="Home" 
-              options={{ title: 'HealthVault', headerLeft: null }}
+              options={{ title: 'Hospital HealthVault', headerLeft: null }}
             >
               {props => <HomeScreen {...props} onLogout={() => setIsLoggedIn(false)} />}
             </Stack.Screen>
             <Stack.Screen 
-              name="Profile" 
-              component={ProfileScreen}
-              options={{ title: 'My Profile' }}
+              name="PatientsList" 
+              component={PatientsListScreen}
+              options={{ title: 'All Patients' }}
             />
             <Stack.Screen 
-              name="Medications" 
-              component={MedicationsScreen}
-              options={{ title: 'My Medications' }}
+              name="AddPatient" 
+              component={AddPatientScreen}
+              options={{ title: 'Add New Patient' }}
+            />
+            <Stack.Screen 
+              name="PatientDetails" 
+              component={PatientDetailsScreen}
+              options={{ title: 'Patient Details' }}
             />
             <Stack.Screen 
               name="AddMedication" 
@@ -92,9 +95,9 @@ export default function App() {
               options={{ title: 'Add Medication' }}
             />
             <Stack.Screen 
-              name="Documents" 
-              component={DocumentsScreen}
-              options={{ title: 'My Documents' }}
+              name="AddDocument" 
+              component={AddDocumentScreen}
+              options={{ title: 'Upload Document' }}
             />
           </>
         )}

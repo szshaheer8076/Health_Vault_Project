@@ -5,7 +5,6 @@ const path = require('path');
 const documentController = require('../controllers/documentController');
 const authMiddleware = require('../middleware/auth');
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -31,12 +30,11 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-router.get('/', authMiddleware, documentController.getDocuments);
-router.post('/', authMiddleware, upload.single('file'), documentController.uploadDocument);
-router.get('/:id', authMiddleware, documentController.getDocument);
+router.get('/:patientId', authMiddleware, documentController.getDocuments);
+router.post('/:patientId', authMiddleware, upload.single('file'), documentController.uploadDocument);
 router.delete('/:id', authMiddleware, documentController.deleteDocument);
 
 module.exports = router;

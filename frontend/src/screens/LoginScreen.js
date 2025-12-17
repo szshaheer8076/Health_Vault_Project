@@ -28,9 +28,9 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
       
       if (response.data.success) {
         await AsyncStorage.setItem('sessionToken', response.data.sessionToken);
-        await AsyncStorage.setItem('userId', response.data.userId);
+        await AsyncStorage.setItem('doctorId', response.data.doctorId);
+        await AsyncStorage.setItem('doctorName', response.data.doctorName);
         
-        // Trigger app state change
         if (onLoginSuccess) {
           onLoginSuccess();
         }
@@ -46,8 +46,8 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>HealthVault</Text>
-        <Text style={styles.subtitle}>Your Personal Health Record</Text>
+        <Text style={styles.title}>Hospital HealthVault</Text>
+        <Text style={styles.subtitle}>Doctor Login</Text>
       </View>
 
       <View style={styles.form}>
@@ -85,7 +85,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
           onPress={() => navigation.navigate('Register')}
         >
           <Text style={styles.linkText}>
-            Don't have an account? Register
+            New doctor? Register here
           </Text>
         </TouchableOpacity>
       </View>
@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
     marginBottom: 50
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#4A90E2',
     marginBottom: 10
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#666'
   },
   form: {

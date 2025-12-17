@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,48 +10,53 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logout } from '../services/api';
 
 export default function HomeScreen({ navigation, onLogout }) {
- const handleLogout = async () => {
-  try {
-    await logout();
-  } catch (error) {
-    console.error('Logout error:', error);
-  } finally {
-    // Clear stored tokens
-    await AsyncStorage.removeItem('sessionToken');
-    await AsyncStorage.removeItem('userId');
-    
-    // Navigate to Login and reset navigation stack
-    if (onLogout) {
-      onLogout();
+  const [doctorName, setDoctorName] = useState('');
+
+  useEffect(() => {
+    loadDoctorName();
+  }, []);
+
+  const loadDoctorName = async () => {
+    const name = await AsyncStorage.getItem('doctorName');
+    setDoctorName(name || 'Doctor');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      await AsyncStorage.removeItem('sessionToken');
+      await AsyncStorage.removeItem('doctorId');
+      await AsyncStorage.removeItem('doctorName');
+      
+      if (onLogout) {
+        onLogout();
+      }
     }
-  }
-};
+  };
+
   const menuItems = [
     {
-      title: 'My Profile',
-      subtitle: 'View and edit your personal information',
-      icon: '👤',
-      onPress: () => navigation.navigate('Profile')
+      title: 'View All Patients',
+      subtitle: 'See list of all patients',
+      icon: '👥',
+      onPress: () => navigation.navigate('PatientsList')
     },
     {
-      title: 'Medications',
-      subtitle: 'Manage your medication list',
-      icon: '💊',
-      onPress: () => navigation.navigate('Medications')
-    },
-    {
-      title: 'Documents',
-      subtitle: 'Upload and view medical documents',
-      icon: '📄',
-      onPress: () => navigation.navigate('Documents')
+      title: 'Add New Patient',
+      subtitle: 'Register a new patient',
+      icon: '➕',
+      onPress: () => navigation.navigate('AddPatient')
     }
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome to HealthVault</Text>
-        <Text style={styles.subtitleText}>Your personal health record</Text>
+        <Text style={styles.welcomeText}>Welcome, Dr. {doctorName}</Text>
+        <Text style={styles.subtitleText}>Hospital HealthVault System</Text>
       </View>
 
       <View style={styles.menuContainer}>

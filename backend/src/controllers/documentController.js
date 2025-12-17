@@ -1,10 +1,11 @@
 const path = require('path');
 const Document = require('../models/Document');
 
-// Get all documents for user
+// Get documents for a patient
 exports.getDocuments = async (req, res) => {
   try {
-    const documents = await Document.find({ userId: req.userId }).sort({ uploadedAt: -1 });
+    const { patientId } = req.params;
+    const documents = await Document.find({ patientId }).sort({ uploadedAt: -1 });
 
     res.json({
       success: true,
@@ -23,6 +24,7 @@ exports.getDocuments = async (req, res) => {
 // Upload document
 exports.uploadDocument = async (req, res) => {
   try {
+    const { patientId } = req.params;
     const { title } = req.body;
 
     if (!title) {
@@ -39,7 +41,6 @@ exports.uploadDocument = async (req, res) => {
       });
     }
 
-    // Determine file type
     const fileExt = path.extname(req.file.originalname).toLowerCase();
     let type = 'image';
     if (fileExt === '.pdf') {
@@ -47,10 +48,11 @@ exports.uploadDocument = async (req, res) => {
     }
 
     const document = new Document({
-      userId: req.userId,
+      patientId,
       title,
       type,
-      filePath: req.file.path
+      filePath: req.file.path,
+      uploadedBy: req.doctorId
     });
 
     await document.save();
@@ -70,39 +72,13 @@ exports.uploadDocument = async (req, res) => {
   }
 };
 
-// Get single document
-exports.getDocument = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const document = await Document.findOne({ _id: id, userId: req.userId });
-
-    if (!document) {
-      return res.status(404).json({
-        success: false,
-        message: 'Document not found'
-      });
-    }
-
-    // Send file
-    res.sendFile(path.resolve(document.filePath));
-
-  } catch (error) {
-    console.error('Get document error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while fetching document'
-    });
-  }
-};
-
 // Delete document
 exports.deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const fs = require('fs').promises;
 
-    const document = await Document.findOne({ _id: id, userId: req.userId });
+    const document = await Document.findById(id);
 
     if (!document) {
       return res.status(404).json({
@@ -111,14 +87,12 @@ exports.deleteDocument = async (req, res) => {
       });
     }
 
-    // Delete file from filesystem
     try {
       await fs.unlink(document.filePath);
     } catch (fileError) {
       console.error('Error deleting file:', fileError);
     }
 
-    // Delete from database
     await Document.deleteOne({ _id: id });
 
     res.json({

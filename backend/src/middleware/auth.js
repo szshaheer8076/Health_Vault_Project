@@ -1,9 +1,7 @@
 const Session = require('../models/Session');
 
-// Simple session-based authentication - NO JWT!
 const authMiddleware = async (req, res, next) => {
   try {
-    // Get token from header
     const token = req.headers['x-auth-token'];
     
     if (!token) {
@@ -13,7 +11,6 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Find session in database
     const session = await Session.findOne({ sessionToken: token });
     
     if (!session) {
@@ -23,8 +20,7 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Attach userId to request for use in controllers
-    req.userId = session.userId;
+    req.doctorId = session.doctorId;
     next();
     
   } catch (error) {
